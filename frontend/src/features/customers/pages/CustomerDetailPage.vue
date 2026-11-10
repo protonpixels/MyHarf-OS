@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { ref, watch } from 'vue'
 import { ApiClientError } from '../../../api/errors'
 import AppButton from '../../../components/ui/AppButton.vue'
 import AppCard from '../../../components/ui/AppCard.vue'
@@ -16,24 +16,34 @@ const missing = ref(false)
 const archiveError = ref('')
 const archiving = ref(false)
 const archiveDialog = ref<HTMLDialogElement | null>(null)
+let loadSequence = 0
+let archiveSequence = 0
 
 async function load() {
+  const sequence = ++loadSequence
   const id = Number(props.customerId)
   loading.value = true
-  loadError.value = ''
-  missing.value = !Number.isSafeInteger(id) || id <= 0
   customer.value = null
-  if (missing.value) {
+  loadError.value = ''
+  missing.value = false
+  archiveError.value = ''
+  archiving.value = false
+  archiveSequence += 1
+  if (!Number.isSafeInteger(id) || id <= 0) {
+    missing.value = true
     loading.value = false
     return
   }
   try {
-    customer.value = await getCustomer(id)
+    const result = await getCustomer(id)
+    if (sequence !== loadSequence) return
+    customer.value = result
   } catch (error) {
+    if (sequence !== loadSequence) return
     if (error instanceof ApiClientError && error.status === 404) missing.value = true
     else loadError.value = error instanceof Error ? error.message : 'Customer details could not be loaded.'
   } finally {
-    loading.value = false
+    if (sequence === loadSequence) loading.value = false
   }
 }
 
@@ -48,15 +58,21 @@ function closeArchiveDialog() {
 
 async function confirmArchive() {
   if (!customer.value || customer.value.status === 'archived' || archiving.value) return
+  const customerId = customer.value.id
+  const sequence = ++archiveSequence
   archiving.value = true
   archiveError.value = ''
   try {
-    customer.value = await archiveCustomer(customer.value.id)
+    const result = await archiveCustomer(customerId)
+    if (sequence !== archiveSequence || Number(props.customerId) !== customerId) return
+    customer.value = result
     closeArchiveDialog()
   } catch (error) {
-    archiveError.value = error instanceof Error ? error.message : 'Customer could not be archived. Try again.'
+    if (sequence === archiveSequence && Number(props.customerId) === customerId) {
+      archiveError.value = error instanceof Error ? error.message : 'Customer could not be archived. Try again.'
+    }
   } finally {
-    archiving.value = false
+    if (sequence === archiveSequence) archiving.value = false
   }
 }
 
@@ -67,7 +83,7 @@ function formatDateTime(value: string) {
     : new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(date)
 }
 
-onMounted(() => { void load() })
+watch(() => props.customerId, () => { void load() }, { immediate: true })
 </script>
 
 <template>

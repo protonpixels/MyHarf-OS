@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { ref, watch } from 'vue'
 import { ApiClientError } from '../../../api/errors'
 import AppButton from '../../../components/ui/AppButton.vue'
 import AppCard from '../../../components/ui/AppCard.vue'
@@ -18,42 +18,59 @@ const missing = ref(false)
 const successMessage = ref('')
 const fieldErrors = ref<CustomerFieldErrors>({})
 const generalErrors = ref<string[]>([])
+let loadSequence = 0
+let saveSequence = 0
 
 async function load() {
+  const sequence = ++loadSequence
   const id = Number(props.customerId)
   loading.value = true
-  loadError.value = ''
-  missing.value = !Number.isSafeInteger(id) || id <= 0
   customer.value = null
-  if (missing.value) {
+  loadError.value = ''
+  missing.value = false
+  saving.value = false
+  successMessage.value = ''
+  fieldErrors.value = {}
+  generalErrors.value = []
+  saveSequence += 1
+  if (!Number.isSafeInteger(id) || id <= 0) {
+    missing.value = true
     loading.value = false
     return
   }
   try {
-    customer.value = await getCustomer(id)
+    const result = await getCustomer(id)
+    if (sequence !== loadSequence) return
+    customer.value = result
   } catch (error) {
+    if (sequence !== loadSequence) return
     if (error instanceof ApiClientError && error.status === 404) missing.value = true
     else loadError.value = error instanceof Error ? error.message : 'Customer details could not be loaded.'
   } finally {
-    loading.value = false
+    if (sequence === loadSequence) loading.value = false
   }
 }
 
 async function submit(payload: CustomerPayload) {
   if (!customer.value || saving.value) return
+  const customerId = customer.value.id
+  const sequence = ++saveSequence
   saving.value = true
   fieldErrors.value = {}
   generalErrors.value = []
   successMessage.value = ''
   try {
-    customer.value = await updateCustomer(customer.value.id, payload)
+    const result = await updateCustomer(customerId, payload)
+    if (sequence !== saveSequence || Number(props.customerId) !== customerId) return
+    customer.value = result
     successMessage.value = 'Customer details saved.'
   } catch (error) {
+    if (sequence !== saveSequence || Number(props.customerId) !== customerId) return
     const normalized = customerErrorMessages(error)
     fieldErrors.value = normalized.fieldErrors
     generalErrors.value = normalized.generalErrors.length ? normalized.generalErrors : ['Please review the highlighted fields and try again.']
   } finally {
-    saving.value = false
+    if (sequence === saveSequence) saving.value = false
   }
 }
 
@@ -63,7 +80,7 @@ function clearFieldError(field: keyof CustomerFieldErrors) {
   successMessage.value = ''
 }
 
-onMounted(() => { void load() })
+watch(() => props.customerId, () => { void load() }, { immediate: true })
 </script>
 
 <template>

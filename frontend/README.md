@@ -1,6 +1,6 @@
 # MyHarf OS frontend
 
-The frontend is the Vue 3 and TypeScript application foundation for MyHarf OS. This phase establishes navigation, the shared shell, design tokens, and shared API infrastructure. Feature workflows are added in later phases.
+The frontend is the Vue 3 and TypeScript application for MyHarf OS. It includes the shared application shell and design system, plus implemented customer management workflows for listing, searching, creating, editing, viewing, and archiving customers. Diagnostics, Fix Ledger, Fix Catalog, and quotation destinations are still placeholders and will be implemented in later phases.
 
 ## Prerequisites
 

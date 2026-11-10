@@ -25,6 +25,8 @@ const record: Customer = {
   created_at: '2026-02-01T10:00:00Z',
   updated_at: '2026-02-03T12:30:00Z',
 }
+const customer12: Customer = { ...record, id: 12, name: 'Customer Twelve', business_name: 'Twelve Roofing' }
+const customer13: Customer = { ...record, id: 13, name: 'Customer Thirteen', business_name: 'Thirteen Roofing' }
 const linkStub = { props: ['to'], template: '<a><slot /></a>' }
 const mountOptions = { global: { stubs: { RouterLink: linkStub } } }
 
@@ -98,6 +100,107 @@ describe('customer create and edit pages', () => {
     const wrapper = mount(CustomerEditPage, { props: { customerId: '17' }, ...mountOptions })
     await flushPromises()
     expect(wrapper.text()).toContain('Customer not found')
+  })
+
+  it('reloads the detail page when customerId changes without remounting', async () => {
+    vi.mocked(getCustomer).mockImplementation(async (id) => id === 12 ? customer12 : customer13)
+    const wrapper = mount(CustomerDetailPage, { props: { customerId: '12' }, ...mountOptions })
+    const originalInstance = wrapper.vm
+    await flushPromises()
+    expect(wrapper.text()).toContain('Customer Twelve')
+
+    await wrapper.setProps({ customerId: '13' })
+    await flushPromises()
+
+    expect(wrapper.vm).toBe(originalInstance)
+    expect(getCustomer).toHaveBeenNthCalledWith(1, 12)
+    expect(getCustomer).toHaveBeenNthCalledWith(2, 13)
+    expect(wrapper.text()).toContain('Customer Thirteen')
+    expect(wrapper.text()).not.toContain('Customer Twelve')
+  })
+
+  it('ignores an older detail request that resolves after the current customer', async () => {
+    let resolve12!: (customer: Customer) => void
+    let resolve13!: (customer: Customer) => void
+    vi.mocked(getCustomer).mockImplementation((id) => new Promise((resolve) => {
+      if (id === 12) resolve12 = resolve
+      else resolve13 = resolve
+    }))
+    const wrapper = mount(CustomerDetailPage, { props: { customerId: '12' }, ...mountOptions })
+    await wrapper.setProps({ customerId: '13' })
+
+    resolve13(customer13)
+    await flushPromises()
+    expect(wrapper.text()).toContain('Customer Thirteen')
+    resolve12(customer12)
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Customer Thirteen')
+    expect(wrapper.text()).not.toContain('Customer Twelve')
+  })
+
+  it('shows the current detail 404 and clears the previous customer', async () => {
+    vi.mocked(getCustomer).mockResolvedValueOnce(customer12).mockRejectedValueOnce(new ApiClientError('Customer not found', 404))
+    const wrapper = mount(CustomerDetailPage, { props: { customerId: '12' }, ...mountOptions })
+    await flushPromises()
+    expect(wrapper.text()).toContain('Customer Twelve')
+
+    await wrapper.setProps({ customerId: '13' })
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Customer not found')
+    expect(wrapper.text()).not.toContain('Customer Twelve')
+  })
+
+  it('reloads the edit page on customerId changes and removes prior form values', async () => {
+    vi.mocked(getCustomer).mockImplementation(async (id) => id === 12 ? customer12 : customer13)
+    const wrapper = mount(CustomerEditPage, { props: { customerId: '12' }, ...mountOptions })
+    const originalInstance = wrapper.vm
+    await flushPromises()
+    expect((wrapper.get('#customer-name').element as HTMLInputElement).value).toBe('Customer Twelve')
+
+    await wrapper.setProps({ customerId: '13' })
+    await flushPromises()
+
+    expect(wrapper.vm).toBe(originalInstance)
+    expect(getCustomer).toHaveBeenNthCalledWith(1, 12)
+    expect(getCustomer).toHaveBeenNthCalledWith(2, 13)
+    expect((wrapper.get('#customer-name').element as HTMLInputElement).value).toBe('Customer Thirteen')
+    expect(wrapper.text()).not.toContain('Edit Customer Twelve')
+  })
+
+  it('does not let an older edit-page request overwrite the current customer', async () => {
+    let resolve12!: (customer: Customer) => void
+    let resolve13!: (customer: Customer) => void
+    vi.mocked(getCustomer).mockImplementation((id) => new Promise((resolve) => {
+      if (id === 12) resolve12 = resolve
+      else resolve13 = resolve
+    }))
+    const wrapper = mount(CustomerEditPage, { props: { customerId: '12' }, ...mountOptions })
+    await wrapper.setProps({ customerId: '13' })
+
+    resolve13(customer13)
+    await flushPromises()
+    expect((wrapper.get('#customer-name').element as HTMLInputElement).value).toBe('Customer Thirteen')
+    resolve12(customer12)
+    await flushPromises()
+
+    expect((wrapper.get('#customer-name').element as HTMLInputElement).value).toBe('Customer Thirteen')
+    expect(wrapper.text()).not.toContain('Edit Customer Twelve')
+  })
+
+  it('shows the current edit load error and clears the previous form', async () => {
+    vi.mocked(getCustomer).mockResolvedValueOnce(customer12).mockRejectedValueOnce(new Error('Customer service unavailable'))
+    const wrapper = mount(CustomerEditPage, { props: { customerId: '12' }, ...mountOptions })
+    await flushPromises()
+    expect((wrapper.get('#customer-name').element as HTMLInputElement).value).toBe('Customer Twelve')
+
+    await wrapper.setProps({ customerId: '13' })
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Customer service unavailable')
+    expect(wrapper.find('#customer-name').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('Edit Customer Twelve')
   })
 })
 
