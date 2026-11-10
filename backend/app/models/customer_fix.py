@@ -52,3 +52,4 @@ class CustomerFix(Base):
     customer: Mapped["Customer"] = relationship(back_populates="fixes")
     finding: Mapped["Finding | None"] = relationship(back_populates="customer_fixes")
     fix_type: Mapped["FixType"] = relationship(back_populates="customer_fixes")
+    quotation_items: Mapped[list["QuotationItem"]] = relationship(back_populates="customer_fix", passive_deletes=True)
