@@ -19,7 +19,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'customers',
         name: 'customers',
-        component: () => import('../pages/PlaceholderPage.vue'),
+        component: () => import('../features/customers/pages/CustomerListPage.vue'),
         meta: {
           title: 'Customers',
           description: 'Manage the businesses MyHarf supports.',
@@ -30,7 +30,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'customers/new',
         name: 'customer-create',
-        component: () => import('../pages/PlaceholderPage.vue'),
+        component: () => import('../features/customers/pages/CustomerCreatePage.vue'),
         meta: {
           title: 'New customer',
           description: 'Create a customer record.',
@@ -42,9 +42,25 @@ const routes: RouteRecordRaw[] = [
         },
       },
       {
+        path: 'customers/:customerId/edit',
+        name: 'customer-edit',
+        component: () => import('../features/customers/pages/CustomerEditPage.vue'),
+        props: true,
+        meta: {
+          title: 'Edit customer',
+          description: 'Update customer contact information.',
+          section: 'customers',
+          breadcrumbs: [
+            { label: 'Customers', to: '/customers' },
+            { label: 'Customer overview', customerProfile: true },
+            { label: 'Edit customer' },
+          ],
+        },
+      },
+      {
         path: 'customers/:customerId',
         name: 'customer-overview',
-        component: () => import('../pages/PlaceholderPage.vue'),
+        component: () => import('../features/customers/pages/CustomerDetailPage.vue'),
         props: true,
         meta: {
           title: 'Customer overview',

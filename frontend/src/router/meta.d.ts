@@ -5,7 +5,7 @@ declare module 'vue-router' {
     title?: string
     description?: string
     section?: string
-    breadcrumbs?: Array<{ label: string; to?: string }>
+    breadcrumbs?: Array<{ label: string; to?: string; customerProfile?: boolean }>
   }
 }
 
