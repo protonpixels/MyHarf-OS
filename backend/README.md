@@ -31,9 +31,9 @@ alembic current
 alembic upgrade head
 ```
 
-The initial baseline creates the Phase 1-3 tables and indexes only when they are missing. It leaves existing tables and rows intact, including databases created by earlier application versions. The next revision adds the quotation tables. Application startup no longer creates tables automatically; Alembic is the schema-management path.
+The initial baseline checks existing Phase 1-3 tables for required columns, compatible types, primary/foreign keys, checks, and indexes. It adds safe missing nullable fields and creates missing tables/indexes without rewriting existing rows. If a required column or constraint would need a risky table rebuild, the migration stops with a diagnostic instead of marking the schema current. The next revision adds the quotation tables, and a SQLite trigger revision protects finalized quotation history. Application startup no longer creates tables automatically; Alembic is the schema-management path.
 
-Migrations are forward-only in this release. Downgrade functions intentionally raise an error instead of dropping tables that may contain business records. For future schema work, generate and review a revision before applying it:
+Migrations are forward-only in this release. Downgrade functions intentionally raise an error instead of dropping tables or triggers that may protect business history. For future schema work, generate and review a revision before applying it:
 
 ```bash
 alembic revision --autogenerate -m "describe the schema change"

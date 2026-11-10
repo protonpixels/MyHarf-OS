@@ -12,6 +12,7 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
     event,
+    false,
     func,
     inspect,
 )
@@ -44,6 +45,7 @@ class Quotation(Base):
     documentation_subtotal_cents: Mapped[int] = mapped_column(Integer, nullable=False)
     implementation_subtotal_cents: Mapped[int] = mapped_column(Integer, nullable=False)
     grand_total_cents: Mapped[int] = mapped_column(Integer, nullable=False)
+    is_finalized: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default=false())
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now()
@@ -110,6 +112,11 @@ def prevent_quotation_amount_changes(_mapper, _connection, quotation: Quotation)
     )
     if any(state.attrs[field].history.has_changes() for field in protected_fields):
         raise ValueError("Quotation customer, currency, and amounts are immutable")
+    finalized_history = state.attrs.is_finalized.history
+    if finalized_history.has_changes() and not (
+        finalized_history.deleted == [False] and finalized_history.added == [True]
+    ):
+        raise ValueError("Quotation finalization is a one-way transition")
 
 
 @event.listens_for(QuotationItem, "before_update")
@@ -117,3 +124,17 @@ def prevent_quotation_item_changes(_mapper, _connection, _item: QuotationItem) -
     """Quotation items are immutable snapshots after creation."""
 
     raise ValueError("Quotation items are immutable snapshots")
+
+
+@event.listens_for(QuotationItem, "before_delete")
+def prevent_quotation_item_deletion(_mapper, _connection, _item: QuotationItem) -> None:
+    """Quotation items cannot be removed from an existing quotation."""
+
+    raise ValueError("Quotation items are immutable snapshots")
+
+
+@event.listens_for(Quotation, "before_delete")
+def prevent_quotation_deletion(_mapper, _connection, _quotation: Quotation) -> None:
+    """Quotations are retained as customer history."""
+
+    raise ValueError("Quotations cannot be deleted")

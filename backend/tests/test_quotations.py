@@ -2,7 +2,7 @@
 
 import pytest
 from pydantic import ValidationError
-from sqlalchemy import event, func, select
+from sqlalchemy import func, select, text
 
 from app.models.customer_fix import CustomerFix
 from app.models.quotation import Quotation, QuotationItem
@@ -334,6 +334,36 @@ def test_quotation_creation_rolls_back_all_staged_rows_on_failure(db_session, mo
     monkeypatch.undo()
     assert db_session.scalar(select(func.count()).select_from(Quotation)) == 0
     assert db_session.scalar(select(func.count()).select_from(QuotationItem)) == 0
+
+
+def test_database_integrity_failure_rolls_back_and_session_remains_usable(db_session) -> None:
+    customer = make_customer(db_session)
+    fix_type = make_fix_type(db_session)
+    customer_fix = make_customer_fix(db_session, customer.id, fix_type.id)
+    db_session.execute(
+        text("""CREATE TRIGGER fail_quotation_item_insert
+            BEFORE INSERT ON quotation_items
+            BEGIN SELECT RAISE(ABORT, 'simulated item constraint failure'); END""")
+    )
+    db_session.commit()
+
+    request = make_quote_request(
+        QuotationItemSelection(
+            customer_fix_id=customer_fix.id,
+            includes_documentation=True,
+            includes_implementation=False,
+        )
+    )
+    with pytest.raises(ResourceConflictError, match="Quotation creation conflicted"):
+        quotations.create_quotation(db_session, customer.id, request)
+
+    assert db_session.scalar(select(func.count()).select_from(Quotation)) == 0
+    assert db_session.scalar(select(func.count()).select_from(QuotationItem)) == 0
+    db_session.execute(text("DROP TRIGGER fail_quotation_item_insert"))
+    db_session.commit()
+
+    created = quotations.create_quotation(db_session, customer.id, request)
+    assert created.grand_total_cents == 12000
 
 
 @pytest.mark.parametrize(

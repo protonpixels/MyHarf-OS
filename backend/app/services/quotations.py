@@ -75,6 +75,7 @@ def create_quotation(db: Session, customer_id: int, data: QuotationCreate) -> Qu
                     line_total_cents=prices.line_total_cents,
                 )
             )
+        quotation.is_finalized = True
         db.commit()
         db.refresh(quotation)
     except IntegrityError as exc:
