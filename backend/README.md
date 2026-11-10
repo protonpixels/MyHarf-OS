@@ -67,7 +67,7 @@ The health check is available at <http://127.0.0.1:8000/health> and `/api/v1/hea
 - `GET /api/v1/quotations/{quotation_id}`
 - `PATCH /api/v1/quotations/{quotation_id}/status`
 
-Delete requests deactivate catalog entries or archive customer fixes; they do not hard-delete records. Existing relationships are protected by foreign-key constraints. Creating a diagnostic or customer fix requires an active customer. Findings must belong to the customer receiving the fix, and inactive fix types cannot be assigned to new or updated customer fixes. Catalog and override prices are validated as nonnegative integer cents; this phase does not calculate prices or quotations.
+Delete requests deactivate catalog entries or archive customer fixes; they do not hard-delete records. Existing relationships are protected by foreign-key constraints. Creating a diagnostic or customer fix requires an active customer. Findings must belong to the customer receiving the fix, and inactive fix types cannot be assigned to new or updated customer fixes.
 
 Customer fix priorities are `low`, `medium`, `high`, and `urgent`; complexity values are `low`, `medium`, and `high`. Lifecycle statuses are `identified`, `documented`, `approved`, `in_progress`, `implemented`, `tested`, and `delivered`. The API stores statuses but does not automate transitions.
 
