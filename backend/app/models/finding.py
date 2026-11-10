@@ -34,5 +34,6 @@ class Finding(Base):
     )
 
     diagnostic: Mapped["Diagnostic"] = relationship(back_populates="findings")
+    customer_fixes: Mapped[list["CustomerFix"]] = relationship(back_populates="finding", passive_deletes=True)
 
 

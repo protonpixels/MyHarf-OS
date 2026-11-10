@@ -3,7 +3,7 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
-from app.services.errors import ResourceConflictError, ResourceNotFoundError
+from app.services.errors import InvalidRelationshipError, ResourceConflictError, ResourceNotFoundError
 
 
 def register_exception_handlers(app: FastAPI) -> None:
@@ -14,3 +14,7 @@ def register_exception_handlers(app: FastAPI) -> None:
     @app.exception_handler(ResourceConflictError)
     async def resource_conflict_handler(_request: Request, exc: ResourceConflictError) -> JSONResponse:
         return JSONResponse(status_code=409, content={"detail": str(exc)})
+
+    @app.exception_handler(InvalidRelationshipError)
+    async def invalid_relationship_handler(_request: Request, exc: InvalidRelationshipError) -> JSONResponse:
+        return JSONResponse(status_code=422, content={"detail": str(exc)})
