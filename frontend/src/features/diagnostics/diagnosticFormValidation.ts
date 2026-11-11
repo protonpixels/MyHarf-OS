@@ -1,5 +1,5 @@
 import type { ApiClientError, ApiIssue } from '../../api/errors'
-import type { DiagnosticCreatePayload } from './types'
+import type { DiagnosticCreatePayload, DiagnosticUpdatePayload } from './types'
 
 export interface DiagnosticFormValues {
   website_url: string
@@ -35,6 +35,10 @@ export function normalizeDiagnosticForm(values: DiagnosticFormValues): Diagnosti
   return payload
 }
 
+export function normalizeDiagnosticUpdateForm(values: DiagnosticFormValues): DiagnosticUpdatePayload {
+  return { website_url: values.website_url.trim(), summary: values.summary.trim() }
+}
+
 export function mapDiagnosticApiIssues(issues: ApiIssue[]): {
   fieldErrors: DiagnosticFieldErrors
   generalErrors: string[]
@@ -64,6 +68,6 @@ export function diagnosticErrorMessages(error: unknown): {
   }
   return {
     fieldErrors: {},
-    generalErrors: [error instanceof Error ? error.message : 'The diagnostic could not be created. Please try again.'],
+    generalErrors: [error instanceof Error ? error.message : 'The diagnostic could not be saved. Please try again.'],
   }
 }

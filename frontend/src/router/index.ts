@@ -91,7 +91,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'diagnostics/:diagnosticId',
         name: 'diagnostic-workspace',
-        component: () => import('../pages/PlaceholderPage.vue'),
+        component: () => import('../features/diagnostics/pages/DiagnosticWorkspacePage.vue'),
         props: true,
         meta: {
           title: 'Diagnostic workspace',

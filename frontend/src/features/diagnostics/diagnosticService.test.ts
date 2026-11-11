@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import http from '../../api/http'
-import { createCustomerDiagnostic, listCustomerDiagnostics } from './diagnosticService'
+import { archiveDiagnostic, createCustomerDiagnostic, getDiagnostic, listCustomerDiagnostics, updateDiagnostic } from './diagnosticService'
 import type { Diagnostic } from './types'
 
 vi.mock('../../api/http', () => ({
-  default: { get: vi.fn(), post: vi.fn() },
+  default: { get: vi.fn(), post: vi.fn(), patch: vi.fn(), delete: vi.fn() },
 }))
 
 const diagnostic: Diagnostic = {
@@ -41,5 +41,25 @@ describe('diagnostic service', () => {
     vi.mocked(http.get).mockRejectedValue(failure)
 
     await expect(listCustomerDiagnostics(404)).rejects.toBe(failure)
+  })
+
+  it('retrieves a diagnostic by its ID', async () => {
+    vi.mocked(http.get).mockResolvedValue({ data: diagnostic })
+    await expect(getDiagnostic(31)).resolves.toEqual(diagnostic)
+    expect(http.get).toHaveBeenCalledWith('/diagnostics/31')
+  })
+
+  it('patches only supplied diagnostic fields and never a parent ID', async () => {
+    vi.mocked(http.patch).mockResolvedValue({ data: diagnostic })
+    const payload = { website_url: 'https://changed.example', summary: '' }
+    await expect(updateDiagnostic(31, payload)).resolves.toEqual(diagnostic)
+    expect(http.patch).toHaveBeenCalledWith('/diagnostics/31', payload)
+    expect(JSON.stringify(vi.mocked(http.patch).mock.calls[0]?.[1])).not.toContain('customer_id')
+  })
+
+  it('archives a diagnostic through DELETE', async () => {
+    vi.mocked(http.delete).mockResolvedValue({ data: { ...diagnostic, status: 'archived' } })
+    await expect(archiveDiagnostic(31)).resolves.toMatchObject({ status: 'archived' })
+    expect(http.delete).toHaveBeenCalledWith('/diagnostics/31')
   })
 })

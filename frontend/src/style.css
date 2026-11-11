@@ -246,6 +246,54 @@ button:focus-visible, a:focus-visible { outline: 3px solid #cf987d; outline-offs
 .diagnostic-form textarea[aria-invalid="true"] { border-color: var(--danger); }
 .back-link { width: fit-content; color: var(--ink-500); font-size: 0.77rem; text-decoration: none; }
 .back-link:hover { color: var(--copper-dark); text-decoration: underline; text-underline-offset: 3px; }
+.workspace-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; }
+.workspace-identity { display: grid; min-width: 0; gap: 0.45rem; }
+.workspace-customer-context { width: fit-content; margin: 0; color: var(--copper-dark); font-size: 0.78rem; font-weight: 650; text-decoration: none; }
+.workspace-customer-context:hover { text-decoration: underline; text-underline-offset: 3px; }
+.workspace-customer-error { color: var(--ink-500); font-weight: 500; }
+.workspace-identity h2 { margin: 0.15rem 0 0; color: var(--ink-950); font-size: clamp(1.35rem, 3vw, 1.8rem); letter-spacing: -0.04em; }
+.workspace-website { width: fit-content; max-width: 100%; color: var(--ink-500); font-size: 0.83rem; overflow-wrap: anywhere; text-decoration: none; }
+.workspace-website:hover { color: var(--copper-dark); text-decoration: underline; }
+.workspace-actions { display: flex; align-items: center; flex-wrap: wrap; justify-content: flex-end; gap: 0.55rem; }
+.workspace-grid { display: grid; grid-template-columns: minmax(0, 1fr); }
+.diagnostic-details-card { padding: 1.35rem; }
+.diagnostic-workspace-summary { margin: 1.15rem 0; color: var(--ink-700); font-size: 0.84rem; line-height: 1.65; white-space: pre-wrap; }
+.diagnostic-workspace-summary--empty { color: var(--ink-500); font-style: italic; }
+.diagnostic-metadata { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin: 1.1rem 0 0; }
+.diagnostic-metadata > div { min-width: 0; }
+.diagnostic-metadata dt { margin-bottom: 0.35rem; color: #94a0a5; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.diagnostic-metadata dd { margin: 0; color: var(--ink-700); font-size: 0.78rem; }
+.diagnostic-status-control dd { display: grid; justify-items: start; gap: 0.45rem; }
+.diagnostic-status-control select, .finding-form select { min-height: 2.45rem; padding: 0.45rem 2rem 0.45rem 0.65rem; border: 1px solid var(--line-strong); border-radius: var(--radius-control); background: white; color: var(--ink-700); font: inherit; font-size: 0.76rem; }
+.diagnostic-status-control select:focus-visible, .finding-form select:focus-visible { outline: 3px solid #cf987d; outline-offset: 2px; }
+.diagnostic-status-control select:disabled { opacity: 0.65; }
+.diagnostic-status-control small { color: var(--ink-500); font-size: 0.68rem; }
+.findings-section { display: grid; gap: 0.8rem; }
+.findings-heading { align-items: center; }
+.findings-heading h2 { margin: 0.3rem 0 0; color: var(--ink-950); font-size: 1.15rem; letter-spacing: -0.025em; }
+.findings-card { overflow: hidden; }
+.findings-state { padding: 0 1rem; }
+.findings-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.9rem 1.15rem; border-bottom: 1px solid var(--line); }
+.findings-toolbar p { margin: 0; color: var(--ink-500); font-size: 0.72rem; }
+.finding-list { display: grid; gap: 0.75rem; margin: 0; padding: 0.9rem; list-style: none; }
+.finding-card { display: grid; gap: 0.75rem; padding: 1rem; border: 1px solid var(--line); border-radius: 0.85rem; background: white; }
+.finding-card--archived { border-style: dashed; background: #f8f8f6; opacity: 0.84; }
+.finding-card-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.finding-card-heading h3 { margin: 0; color: var(--ink-950); font-size: 0.9rem; letter-spacing: -0.015em; }
+.finding-created { margin: 0.3rem 0 0; color: var(--ink-500); font-size: 0.67rem; }
+.finding-description { margin: 0; color: var(--ink-700); font-size: 0.78rem; line-height: 1.6; white-space: pre-wrap; }
+.finding-detail { display: grid; gap: 0.25rem; margin: 0; color: var(--ink-700); font-size: 0.75rem; overflow-wrap: anywhere; }
+.finding-detail strong { color: var(--ink-500); font-size: 0.63rem; letter-spacing: 0.06em; text-transform: uppercase; }
+.finding-detail a { color: var(--copper-dark); text-decoration: none; }
+.finding-detail a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.finding-evidence span { white-space: pre-wrap; }
+.finding-actions { display: flex; justify-content: flex-end; gap: 0.5rem; padding-top: 0.65rem; border-top: 1px solid var(--line); }
+.finding-actions .button { min-height: 2.2rem; padding: 0.4rem 0.7rem; font-size: 0.72rem; }
+.record-form-dialog { max-height: min(90vh, 850px); overflow: auto; }
+.record-form-dialog .form-card-heading { margin-bottom: 1.1rem; }
+.record-form-dialog .form-card-heading h2 { margin: 0.4rem 0; }
+.record-form-dialog .form-card-heading p { margin: 0; color: var(--ink-500); font-size: 0.78rem; line-height: 1.5; }
+.finding-form textarea { min-height: 5rem; }
 .confirm-dialog { width: min(calc(100% - 2rem), 440px); padding: 1.6rem; border: 1px solid var(--line); border-radius: 1rem; background: white; color: var(--ink-950); box-shadow: 0 20px 70px rgb(18 33 43 / 24%); }
 .confirm-dialog::backdrop { background: rgb(18 33 43 / 48%); backdrop-filter: blur(2px); }
 .dialog-symbol { display: grid; width: 2.25rem; height: 2.25rem; place-items: center; border-radius: 50%; background: var(--warning-pale); color: var(--warning); font-weight: 750; }
@@ -310,6 +358,13 @@ button:focus-visible, a:focus-visible { outline: 3px solid #cf987d; outline-offs
   .future-section-grid { grid-template-columns: minmax(0, 1fr); }
   .future-label { max-width: 8rem; text-align: right; }
   .customer-form-card { padding: 1.1rem; }
+  .workspace-heading { align-items: flex-start; flex-direction: column; }
+  .workspace-actions { justify-content: flex-start; }
+  .diagnostic-metadata { grid-template-columns: minmax(0, 1fr); }
+  .finding-card-heading { flex-direction: column-reverse; gap: 0.5rem; }
+  .finding-actions { justify-content: stretch; }
+  .finding-actions > * { flex: 1 1 0; }
+  .record-form-dialog { padding: 1.1rem; }
   .form-actions { justify-content: stretch; }
   .form-actions > * { flex: 1 1 0; }
   .form-actions .button { padding-inline: 0.5rem; font-size: 0.75rem; }

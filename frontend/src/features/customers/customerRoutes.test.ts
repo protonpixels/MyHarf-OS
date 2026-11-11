@@ -35,9 +35,10 @@ describe('customer route records', () => {
     expect(diagnosticRoute.matched.at(-1)?.components?.default).toBeTypeOf('function')
   })
 
-  it('keeps diagnostic detail as a Phase 6C placeholder route', () => {
+  it('keeps the diagnostic workspace named route and metadata', () => {
     const detailRoute = router.resolve('/diagnostics/31')
     expect(detailRoute.name).toBe('diagnostic-workspace')
     expect(detailRoute.meta.title).toBe('Diagnostic workspace')
+    expect(detailRoute.matched.at(-1)?.components?.default).toBeTypeOf('function')
   })
 })
