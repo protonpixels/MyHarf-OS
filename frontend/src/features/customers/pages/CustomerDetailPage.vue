@@ -5,6 +5,7 @@ import AppButton from '../../../components/ui/AppButton.vue'
 import AppCard from '../../../components/ui/AppCard.vue'
 import EmptyState from '../../../components/ui/EmptyState.vue'
 import StatusBadge from '../../../components/ui/StatusBadge.vue'
+import CustomerDiagnosticsSection from '../../diagnostics/components/CustomerDiagnosticsSection.vue'
 import { archiveCustomer, getCustomer } from '../customerService'
 import type { Customer } from '../types'
 
@@ -119,8 +120,9 @@ watch(() => props.customerId, () => { void load() }, { immediate: true })
 
       <section class="future-workspace" aria-labelledby="future-workspace-title">
         <div class="section-heading"><div><span class="form-step">WORKSPACE</span><h3 id="future-workspace-title">Customer activity</h3></div><span class="future-label">EXPANDING IN FUTURE PHASES</span></div>
+        <CustomerDiagnosticsSection :customer-id="customer.id" :customer-status="customer.status" />
         <div class="future-section-grid">
-          <article v-for="area in ['Diagnostics', 'Findings', 'Fixes', 'Quotations', 'Implementation projects', 'Delivery history']" :key="area" class="future-section-card">
+          <article v-for="area in ['Findings', 'Fixes', 'Quotations', 'Implementation projects', 'Delivery history']" :key="area" class="future-section-card">
             <div class="future-section-title"><h4>{{ area }}</h4><span aria-hidden="true">↗</span></div>
             <p>Not available in this phase</p>
           </article>

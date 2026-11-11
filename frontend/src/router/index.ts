@@ -75,7 +75,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'customers/:customerId/diagnostics/new',
         name: 'diagnostic-create',
-        component: () => import('../pages/PlaceholderPage.vue'),
+        component: () => import('../features/diagnostics/pages/DiagnosticCreatePage.vue'),
         props: true,
         meta: {
           title: 'New diagnostic',
@@ -83,7 +83,7 @@ const routes: RouteRecordRaw[] = [
           section: 'customers',
           breadcrumbs: [
             { label: 'Customers', to: '/customers' },
-            { label: 'Customer overview' },
+            { label: 'Customer overview', customerProfile: true },
             { label: 'New diagnostic' },
           ],
         },

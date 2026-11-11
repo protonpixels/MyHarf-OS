@@ -22,4 +22,22 @@ describe('customer route records', () => {
       { label: 'Edit customer' },
     ])
   })
+
+  it('uses the diagnostic creation page with customer profile breadcrumbs', () => {
+    const diagnosticRoute = router.resolve('/customers/17/diagnostics/new')
+    expect(diagnosticRoute.name).toBe('diagnostic-create')
+    expect(diagnosticRoute.meta.title).toBe('New diagnostic')
+    expect(diagnosticRoute.meta.breadcrumbs).toEqual([
+      { label: 'Customers', to: '/customers' },
+      { label: 'Customer overview', customerProfile: true },
+      { label: 'New diagnostic' },
+    ])
+    expect(diagnosticRoute.matched.at(-1)?.components?.default).toBeTypeOf('function')
+  })
+
+  it('keeps diagnostic detail as a Phase 6C placeholder route', () => {
+    const detailRoute = router.resolve('/diagnostics/31')
+    expect(detailRoute.name).toBe('diagnostic-workspace')
+    expect(detailRoute.meta.title).toBe('Diagnostic workspace')
+  })
 })

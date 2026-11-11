@@ -14,6 +14,9 @@ vi.mock('./customerService', () => ({
   listCustomers: vi.fn(),
   updateCustomer: vi.fn(),
 }))
+vi.mock('../diagnostics/diagnosticService', () => ({
+  listCustomerDiagnostics: vi.fn().mockResolvedValue([]),
+}))
 
 const record: Customer = {
   id: 17,
